@@ -181,7 +181,7 @@ const getCanvas = (
 
 export default function Webcam(props: WebcamProps) {
   const mergedProps = mergeProps(defaultProps, props);
-  const [prevProps, setPrevProps] = createStore(mergedProps);
+  const [prevProps, setPrevProps] = createStore({ ...mergedProps });
 
   let video: HTMLVideoElement | null = null;
   let stream: MediaStream | null = null;
