@@ -1,7 +1,7 @@
 {
   "name": "solid-webcam",
   "description": "Webcam component for SolidJS",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "type": "module",

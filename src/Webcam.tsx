@@ -179,7 +179,7 @@ const getCanvas = (
   return canvas;
 };
 
-export default function Webcam(props: WebcamProps) {
+export function Webcam(props: WebcamProps) {
   const mergedProps = mergeProps(defaultProps, props);
   const [prevProps, setPrevProps] = createStore({ ...mergedProps });
 

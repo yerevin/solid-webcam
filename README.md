@@ -23,7 +23,7 @@ npm install solid-webcam
 ## Usage
 
 ```jsx
-import Webcam from "solid-webcam";
+import { Webcam } from "solid-webcam";
 
 const WebcamWrapper = () => <Webcam />;
 ```
@@ -68,7 +68,7 @@ https://developer.mozilla.org/en-US/docs/Web/API/Media_Streams_API/Constraints
 ## Screenshot (via ref)
 
 ```jsx
-import Webcam, { getScreenshot } from "solid-webcam";
+import { Webcam, getScreenshot } from "solid-webcam";
 
 const videoConstraints = {
   width: 1280,
