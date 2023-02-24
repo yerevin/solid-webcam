@@ -1,13 +1,30 @@
 import { defineConfig } from "vite";
 import solidPlugin from "vite-plugin-solid";
-import basicSsl from "@vitejs/plugin-basic-ssl";
+import dts from "vite-plugin-dts";
+import { resolve } from "node:path";
 
 export default defineConfig({
-  plugins: [solidPlugin(), basicSsl()],
+  plugins: [
+    dts({
+      insertTypesEntry: true,
+      rollupTypes: true,
+    }),
+    solidPlugin(),
+  ],
+
+  build: {
+    lib: {
+      entry: resolve(__dirname, "src/index.ts"),
+      formats: ["es"],
+      fileName: "index",
+    },
+    rollupOptions: {
+      external: ["solid-js"],
+    },
+    sourcemap: true,
+  },
+
   server: {
     port: 3000,
-  },
-  build: {
-    target: "esnext",
   },
 });

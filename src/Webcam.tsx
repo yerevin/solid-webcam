@@ -5,12 +5,12 @@ import {
   onCleanup,
   createEffect,
   mergeProps,
-} from 'solid-js';
-import { createStore } from 'solid-js/store';
+} from "solid-js";
+import { createStore } from "solid-js/store";
 
 // polyfill based on https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
 (function polyfillGetUserMedia() {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return;
   }
 
@@ -39,7 +39,7 @@ import { createStore } from 'solid-js/store';
       // to keep a consistent interface
       if (!getUserMedia) {
         return Promise.reject(
-          new Error('getUserMedia is not implemented in this browser')
+          new Error("getUserMedia is not implemented in this browser")
         );
       }
 
@@ -58,8 +58,8 @@ function hasGetUserMedia() {
 export type WebcamProps = JSX.VideoHTMLAttributes<HTMLVideoElement> & {
   audio: boolean;
   mirrored?: boolean;
-  audioConstraints?: MediaStreamConstraints['audio'];
-  videoConstraints?: MediaStreamConstraints['video'];
+  audioConstraints?: MediaStreamConstraints["audio"];
+  videoConstraints?: MediaStreamConstraints["video"];
   onUserMedia?: (stream: MediaStream) => void;
   onUserMediaError?: (error: string | DOMException) => void;
 };
@@ -77,7 +77,7 @@ export type ScreenshotOptions = {
   forceScreenshotSourceSize?: boolean;
   imageSmoothing?: boolean;
   mirrored?: boolean;
-  screenshotFormat?: 'image/webp' | 'image/png' | 'image/jpeg';
+  screenshotFormat?: "image/webp" | "image/png" | "image/jpeg";
   screenshotQuality?: number;
   screenshotDimensions?: ScreenshotDimensions;
 };
@@ -91,7 +91,7 @@ const defaultScreenshotOptions = {
   forceScreenshotSourceSize: false,
   imageSmoothing: true,
   mirrored: false,
-  screenshotFormat: 'image/webp',
+  screenshotFormat: "image/webp",
   screenshotQuality: 0.92,
 } as const;
 
@@ -102,6 +102,8 @@ export const getScreenshot = (
   screenshotOptions: ScreenshotOptions = defaultScreenshotOptions
 ) => {
   if (!hasUserMedia()) return null;
+
+  screenshotOptions = { ...defaultScreenshotOptions, ...screenshotOptions };
 
   const canvas = getCanvas(videoRef, screenshotOptions);
   return (
@@ -144,11 +146,11 @@ const getCanvas = (
       }
     }
 
-    canvas = document.createElement('canvas');
+    canvas = document.createElement("canvas");
     canvas.width = screenshotOptions.screenshotDimensions?.width || canvasWidth;
     canvas.height =
       screenshotOptions.screenshotDimensions?.height || canvasHeight;
-    ctx = canvas.getContext('2d');
+    ctx = canvas.getContext("2d");
   }
 
   if (ctx && canvas) {
@@ -158,7 +160,7 @@ const getCanvas = (
       ctx.scale(-1, 1);
     }
 
-    ctx.imageSmoothingEnabled = screenshotOptions.imageSmoothing;
+    ctx.imageSmoothingEnabled = Boolean(screenshotOptions.imageSmoothing);
     ctx.drawImage(
       videoRef,
       0,
@@ -186,13 +188,13 @@ export default function Webcam(props: WebcamProps) {
 
   const [requestUserMediaId, setRequestUserMediaId] = createSignal<number>(0);
   const [unmounted, setUnmounted] = createSignal<boolean>(false);
-  const [src, setSrc] = createSignal<string>('');
+  const [src, setSrc] = createSignal<string>("");
 
   onMount(() => {
     setUnmounted(false);
 
     if (!hasGetUserMedia()) {
-      mergedProps.onUserMediaError('getUserMedia not supported');
+      mergedProps.onUserMediaError("getUserMedia not supported");
 
       return;
     }
@@ -201,14 +203,14 @@ export default function Webcam(props: WebcamProps) {
       requestUserMedia();
     }
 
-    if (mergedProps.children && typeof mergedProps.children != 'function') {
-      console.warn('children must be a function');
+    if (mergedProps.children && typeof mergedProps.children != "function") {
+      console.warn("children must be a function");
     }
   });
 
   createEffect(() => {
     if (!hasGetUserMedia()) {
-      mergedProps.onUserMediaError('getUserMedia not supported');
+      mergedProps.onUserMediaError("getUserMedia not supported");
 
       return;
     }
@@ -265,12 +267,12 @@ export default function Webcam(props: WebcamProps) {
     ) => {
       const constraints: MediaStreamConstraints = {
         video:
-          typeof videoConstraints !== 'undefined' ? videoConstraints : true,
+          typeof videoConstraints !== "undefined" ? videoConstraints : true,
       };
 
       if (mergedProps.audio) {
         constraints.audio =
-          typeof audioConstraints !== 'undefined' ? audioConstraints : true;
+          typeof audioConstraints !== "undefined" ? audioConstraints : true;
       }
 
       setRequestUserMediaId((prev) => prev + 1);
@@ -290,7 +292,7 @@ export default function Webcam(props: WebcamProps) {
         });
     };
 
-    if ('mediaDevices' in navigator) {
+    if ("mediaDevices" in navigator) {
       sourceSelected(
         mergedProps.audioConstraints,
         mergedProps.videoConstraints
@@ -299,19 +301,26 @@ export default function Webcam(props: WebcamProps) {
       const optionalSource = (id: string | null) =>
         ({ optional: [{ sourceId: id }] } as MediaTrackConstraints);
 
-      const constraintToSourceId = (constraint) => {
-        const { deviceId } = constraint;
+      const constraintToSourceId = (
+        constraint: boolean | MediaTrackConstraints | undefined
+      ) => {
+        if (typeof constraint === "object") {
+          const { deviceId } = constraint;
 
-        if (typeof deviceId === 'string') {
-          return deviceId;
-        }
+          if (typeof deviceId === "string") {
+            return deviceId;
+          }
 
-        if (Array.isArray(deviceId) && deviceId.length > 0) {
-          return deviceId[0];
-        }
+          if (Array.isArray(deviceId) && deviceId.length > 0) {
+            return deviceId[0];
+          }
 
-        if (typeof deviceId === 'object' && deviceId.ideal) {
-          return deviceId.ideal;
+          if (
+            typeof deviceId === "object" &&
+            (deviceId as { ideal: string }).ideal
+          ) {
+            return (deviceId as { ideal: string }).ideal;
+          }
         }
 
         return null;
@@ -323,9 +332,9 @@ export default function Webcam(props: WebcamProps) {
         let videoSource: string | null = null;
 
         sources.forEach((source: MediaStreamTrack) => {
-          if (source.kind === 'audio') {
+          if (source.kind === "audio") {
             audioSource = source.id;
-          } else if (source.kind === 'video') {
+          } else if (source.kind === "video") {
             videoSource = source.id;
           }
         });
@@ -352,10 +361,13 @@ export default function Webcam(props: WebcamProps) {
     }
   };
 
-  const handleUserMedia = (err, stream?: MediaStream) => {
+  const handleUserMedia = (
+    err: string | DOMException | null,
+    stream?: MediaStream
+  ) => {
     if (err || !stream) {
       setHasUserMedia(false);
-      mergedProps.onUserMediaError(err);
+      if (err) mergedProps.onUserMediaError(err);
 
       return;
     }
@@ -380,7 +392,7 @@ export default function Webcam(props: WebcamProps) {
     ? {
         ...(mergedProps.style as JSX.CSSProperties),
         transform: `${
-          (mergedProps.style as JSX.CSSProperties).transform || ''
+          (mergedProps.style as JSX.CSSProperties).transform || ""
         } scaleX(-1)`,
       }
     : mergedProps.style;
